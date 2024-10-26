@@ -1,0 +1,54 @@
+/* app.css - Reset CSS */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@400;700&display=swap');
+
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Supprime les décorations de liens */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Réinitialise les listes */
+ul, ol {
+    list-style: none;
+}
+
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+
+body {
+    font-family: 'Montserrat', sans-serif;;
+    line-height: 1.5;
+    background-image: url('/images/background.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-color: rgb(207, 205, 205); 
+    background-blend-mode: lighten; 
+    margin: 0;
+    padding: 0;
+}
+
+/* Utiliser Cinzel pour les titres, par exemple */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cinzel', serif;
+}

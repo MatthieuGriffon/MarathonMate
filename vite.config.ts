@@ -4,10 +4,17 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [
-		sveltekit(),
+		sveltekit(), // Plugin SvelteKit pour Vite
+
+		// Plugin Paraglide pour Inlang
 		paraglide({
-			project: './project.inlang',
-			outdir: './src/lib/paraglide'
+			project: './project.inlang', // Chemin vers le projet Inlang
+			outdir: './src/lib/paraglide' // Répertoire de sortie pour les fichiers générés
 		})
-	]
+	],
+	
+	// Configuration optionnelle pour les optimisations de dépendances
+	optimizeDeps: {
+		include: ['lodash.get', 'lodash.isequal', 'lodash.clonedeep']
+	}
 });

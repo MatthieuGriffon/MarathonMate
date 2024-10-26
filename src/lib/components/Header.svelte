@@ -1,8 +1,22 @@
 <script lang="ts">
     let menuOpen = false;
-
     function toggleMenu() {
         menuOpen = !menuOpen;
+    }
+    function closeMenu() {
+        menuOpen = false;
+    }
+
+    import { isModalInscriptionOpen, isModalConnexionOpen } from '$lib/stores/modalStore';
+
+    function openModalInscription() {
+        isModalInscriptionOpen.set(true);
+        closeMenu();
+    }
+
+    function openModalConnexion() {
+        isModalConnexionOpen.set(true);
+        closeMenu();
     }
 </script>
 
@@ -15,6 +29,8 @@
 
         <ul class="menu__box">
             <li><a class="menu__item" href="/" on:click={() => (menuOpen = false)}>Accueil</a></li>
+            <li><button class="menu__item" on:click={() => { closeMenu(); openModalConnexion(); }}>Connexion</button></li>
+            <li><button class="menu__item" on:click={() => { closeMenu(); openModalInscription(); }}>Inscription</button></li>
             <li><a class="menu__item" href="/marathons" on:click={() => (menuOpen = false)}>Marathons</a></li>
             <li><a class="menu__item" href="/suggestions" on:click={() => (menuOpen = false)}>Suggestions</a></li>
             <li><a class="menu__item" href="/profile" on:click={() => (menuOpen = false)}>Profil</a></li>

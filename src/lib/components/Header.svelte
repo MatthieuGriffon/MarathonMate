@@ -37,7 +37,7 @@
         </ul>
     </div>
     <div class="titre">
-        <h2>Le site de référence pour les marathons</h2>
+        <h1>Marathonmate</h1>
     </div>
 </div>
 

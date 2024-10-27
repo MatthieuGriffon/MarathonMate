@@ -47,28 +47,35 @@
 
 
 <style>
+    /* Arrière-plan de la modal */
     .modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.8); /* Renforce le contraste */
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 1000;
+        backdrop-filter: grayscale(100%) contrast(1.2); /* Effet noir et blanc */
     }
 
+    /* Contenu de la modal */
     .modal-content {
-        background: white;
-        padding: 1.5rem;
+        background: #f0f0f0; /* Légèrement gris pour rappeler les anciens écrans */
+        padding: 2rem;
         border-radius: 8px;
         position: relative;
         max-width: 500px;
         width: 90%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Ombre pour effet de profondeur */
+        font-family: 'Courier New', Courier, monospace; /* Police de style machine à écrire */
+        color: #333; /* Couleur sombre pour le texte */
     }
 
+    /* Bouton de fermeture */
     .close-button {
         position: absolute;
         top: 0.5rem;
@@ -77,5 +84,42 @@
         border: none;
         font-size: 1.5rem;
         cursor: pointer;
+        color: #333; /* Harmonise avec le reste */
+        font-weight: bold;
+    }
+
+    /* Forme et champs du formulaire */
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 2px solid #999;
+        border-radius: 4px;
+        background-color: #e0e0e0;
+        color: #333;
+    }
+
+    button[type="submit"] {
+        background-color: #333;
+        color: #fff;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #555; /* Effet visuel rétro lors du survol */
     }
 </style>

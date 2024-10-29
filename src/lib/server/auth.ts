@@ -33,9 +33,8 @@ export async function invalidateSession(sessionId: string): Promise<void> {
 export async function validateSession(sessionId: string) {
 	const [result] = await db
 		.select({
-			// Adjust user table here to tweak returned data
-			user: { id: table.user.id, username: table.user.name },
-			session: table.session
+			user: { id: table.user.id, name: table.user.name, email: table.user.email }, // Assurez-vous de sélectionner `name` et `email`
+            session: table.session
 		})
 		.from(table.session)
 		.innerJoin(table.user, eq(table.session.userId, table.user.id))

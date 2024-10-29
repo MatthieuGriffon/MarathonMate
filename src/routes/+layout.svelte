@@ -12,7 +12,3 @@
 	<slot />
 	<Footer />
 </ParaglideJS>
-
-<style>
-	  
-</style>

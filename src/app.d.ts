@@ -1,5 +1,3 @@
-// See https://svelte.dev/docs/kit/types#app.d.ts
-// for information about these interfaces
 declare global {
 	namespace App {
 		interface Locals {
@@ -7,6 +5,19 @@ declare global {
 			session: import('$lib/server/auth').SessionValidationResult['session'];
 		}
 	}
+}
+declare namespace App {
+    interface Locals {
+        user: {
+            id: string;
+            name: string;
+            email: string;
+        } | null;
+        session: {
+            id: string;
+            expiresAt: Date;
+        } | null;
+    }
 }
 
 export {};

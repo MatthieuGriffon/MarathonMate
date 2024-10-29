@@ -1,14 +1,16 @@
 <script lang="ts">
+    import { enhance } from '$app/forms';
     export let isOpen: boolean;
     export let onClose: () => void;
+    let formResult: any = null;
 </script>
 
 {#if isOpen}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <div
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
         class="modal-overlay"
         role="dialog"
         aria-modal="true"
@@ -16,8 +18,6 @@
         on:click={onClose}
         on:keydown={(event) => event.key === 'Escape' && onClose()}
     >
-        
-
         <div class="modal-content" on:click|stopPropagation>
             <button
                 class="close-button"
@@ -28,20 +28,31 @@
                 &times;
             </button>
             <h2>Connexion</h2>
-            <form>
+            <form method="POST" action="?/login" use:enhance on:submit={() => formResult = null}>
+                {#if formResult?.error}
+                    <p class="error">{formResult.error}</p>
+                {/if}
                 <label>
                     Email :
-                    <input type="email" required />
+                    <input type="email" name="email" required />
                 </label>
                 <label>
                     Mot de passe :
-                    <input type="password" required />
+                    <input type="password" name="password" required />
                 </label>
                 <button type="submit">Se connecter</button>
             </form>
+
+            <!-- Options de connexion OAuth -->
+            <div class="oauth-options">
+                <p>Ou connectez-vous avec :</p>
+                <button type="button" on:click={() => window.location.href = '/auth/login/google'}>Google</button>
+                <button type="button" on:click={() => window.location.href = '/auth/login/github'}>GitHub</button>
+            </div>
         </div>
     </div>
 {/if}
+
 
 <style>
     /* Arrière-plan de la modal */
@@ -118,6 +129,36 @@
 
     button[type="submit"]:hover {
         background-color: #555; /* Effet visuel rétro lors du survol */
+    }
+    /* Styles pour les options OAuth */
+    .oauth-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .oauth-options button {
+        background-color: #4285f4; /* Couleur Google par exemple */
+        color: #fff;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .oauth-options button:hover {
+        background-color: #357ae8;
+    }
+
+    .oauth-options button:nth-child(2) {
+        background-color: #333; /* Couleur GitHub */
+    }
+
+    .oauth-options button:nth-child(2):hover {
+        background-color: #555;
     }
 </style>
 

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { page } from '$app/stores';
+    
     let menuOpen = false;
     function toggleMenu() {
         menuOpen = !menuOpen;
@@ -18,6 +20,7 @@
         isModalConnexionOpen.set(true);
         closeMenu();
     }
+    $: user = $page.data.user;
 </script>
 
 <div class="header">
@@ -33,11 +36,19 @@
             <li><button class="menu__item" on:click={() => { closeMenu(); openModalInscription(); }}>Inscription</button></li>
             <li><a class="menu__item" href="/marathons" on:click={() => (menuOpen = false)}>Marathons</a></li>
             <li><a class="menu__item" href="/suggestions" on:click={() => (menuOpen = false)}>Suggestions</a></li>
-            <li><a class="menu__item" href="/profile" on:click={() => (menuOpen = false)}>Profil</a></li>
+            {#if user}
+                <li><a class="menu__item" href="/profile" on:click={() => (menuOpen = false)}>Profil</a>
+                   
+                </li>
+            {/if}
         </ul>
     </div>
     <div class="titre">
         <h1>Marathonmate</h1>
+        {#if user}
+        {user.name} <span class="status-indicator">●</span>
+        {/if}
+       
     </div>
 </div>
 
@@ -145,8 +156,9 @@
         text-align: center;
         flex: 1; /* Occupe l'espace restant */
     }
-    .titre h2 {
-        margin: 0;
-        font-size: 1rem;
+    .status-indicator {
+        color: green; /* Indicateur vert pour signaler que l'utilisateur est connecté */
+        font-size: 1.2em;
+        margin-left: 5px;
     }
 </style>

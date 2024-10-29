@@ -8,6 +8,7 @@ export const user = pgTable('user', {
     password: text('password'), // hashed password if needed
     oauthProvider: text('oauth_provider'),
     oauthProviderId: text('oauth_provider_id'),
+    profilePicture: text('profile_picture'), 
     createdAt: timestamp('created_at').defaultNow()
 });
 

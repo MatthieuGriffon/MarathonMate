@@ -31,10 +31,15 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
     // Assurez-vous que `locals.user` correspond au type défini dans `app.d.ts`
     event.locals.user = user
-        ? { id: user.id, name: user.name, email: user.email }
-        : null;
+    ? {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        profile_picture: user.profile_picture,
+		oauthProvider: user.oauthProvider  // Nom aligné
+    }
+    : null;
     event.locals.session = session;
-
     return resolve(event);
 };
 

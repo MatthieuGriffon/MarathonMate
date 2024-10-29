@@ -33,7 +33,7 @@ export async function invalidateSession(sessionId: string): Promise<void> {
 export async function validateSession(sessionId: string) {
 	const [result] = await db
 		.select({
-			user: { id: table.user.id, name: table.user.name, email: table.user.email }, // Assurez-vous de sélectionner `name` et `email`
+			user: { id: table.user.id, name: table.user.name, email: table.user.email, profile_picture: table.user.profilePicture, oauthProvider: table.user.oauthProvider }, // Assurez-vous de sélectionner `name` et `email`
             session: table.session
 		})
 		.from(table.session)

@@ -47,17 +47,18 @@ export const GET = async ({ url, cookies }) => {
         .then(([u]) => u);
         console.log('User:', user);
 
-    if (!user) {
-        const userId = uuidv4();
-        user = await db.insert(table.user).values({
-            id: userId, 
-            email: userInfo.email,
-            name: userInfo.name,
-            oauthProvider: 'google',
-            oauthProviderId: userInfo.id
-        }).returning().then(([u]) => u);
-        console.log('New user created:', user);
-    }
+        if (!user) {
+            const userId = uuidv4();
+            user = await db.insert(table.user).values({
+                id: userId,
+                email: userInfo.email,
+                name: userInfo.name,
+                oauthProvider: 'google',
+                oauthProviderId: userInfo.id,
+                profilePicture: userInfo.picture  // Nom aligné
+            }).returning().then(([u]) => u);
+            console.log('New user created:', user);
+        }
 
     // Création de la session et définition du cookie de session
     const session = await createSession(user.id);

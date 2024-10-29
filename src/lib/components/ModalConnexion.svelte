@@ -28,7 +28,7 @@
                 &times;
             </button>
             <h2>Connexion</h2>
-            <form method="POST" action="?/login" use:enhance on:submit={() => formResult = null}>
+            <form method="POST" action="/login?/login" use:enhance on:submit={() => formResult = null}>
                 {#if formResult?.error}
                     <p class="error">{formResult.error}</p>
                 {/if}
@@ -47,7 +47,6 @@
             <div class="oauth-options">
                 <p>Ou connectez-vous avec :</p>
                 <button type="button" on:click={() => window.location.href = '/auth/login/google'}>Google</button>
-                <button type="button" on:click={() => window.location.href = '/auth/login/github'}>GitHub</button>
             </div>
         </div>
     </div>

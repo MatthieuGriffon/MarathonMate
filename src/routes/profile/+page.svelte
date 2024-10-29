@@ -2,7 +2,7 @@
     import { goto, invalidateAll } from '$app/navigation';
     import { page } from '$app/stores';
     import { enhance } from '$app/forms';
-
+    $: console.log("URL de la photo de profil 01 : ", user.profile_picture);
     $: user = $page.data.user;
     let showPasswordChange = false;
     let oldPassword = '';
@@ -10,7 +10,9 @@
     let confirmPassword = '';
     let passwordChangeMessage = '';
     let showDeleteConfirmation = false;
-    let deleteMessage = ''; // Message de retour pour la suppression du compte
+    let deleteMessage = '';
+    let profilePicture: File | null = null;
+    let uploadMessage = '';
 
     async function handleLogout() {
         await fetch('/logout', { method: 'POST' });
@@ -38,7 +40,6 @@
         }
     }
 
-    // Fonction pour gérer la suppression du compte
     async function handleDeleteAccount() {
     try {
         const response = await fetch('/profile/delete-account', {
@@ -58,6 +59,39 @@
         deleteMessage = 'Une erreur est survenue. Veuillez réessayer.';
     }
 }
+async function handleFileUpload() {
+    if (!profilePicture) {
+        uploadMessage = 'Please select a file.';
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('profilePicture', profilePicture);
+
+    try {
+        const response = await fetch('/upload-profile-picture', {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // Mets à jour directement la photo de profil sans invalider
+            user.profile_picture = `${data.profilePictureUrl}?t=${new Date().getTime()}`;
+            console.log('Profile picture uploaded:', user.profile_picture);
+            uploadMessage = 'Upload successful!';
+            
+            // Optionnel : Utiliser invalidateAll si les données ne sont pas mises à jour correctement
+            // await invalidateAll(); 
+        } else {
+            uploadMessage = 'Upload failed. Please try again.';
+        }
+    } catch (error) {
+        console.error(error);
+        uploadMessage = 'An error occurred during upload.';
+    }
+}
+
 </script>
 
 {#if user}
@@ -72,6 +106,15 @@
     </div>
     
     {#if !user.oauthProvider}
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+         
+        <form on:submit|preventDefault={handleFileUpload}>
+            <label for="profilePicture">Upload Profile Picture:</label>
+            <input type="file" id="profilePicture" accept="image/jpeg, image/png" on:change={(e) => { const target = e.target as HTMLInputElement; if (target.files) profilePicture = target.files[0]; }} />
+            <button type="submit">Upload</button>
+        </form>
+        <p>{uploadMessage}</p>
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <p class="change-password-link" on:click={() => showPasswordChange = !showPasswordChange}>

@@ -3,6 +3,9 @@ import { dev } from '$app/environment';
 import * as auth from '$lib/server/auth.js';
 import type { Handle } from '@sveltejs/kit';
 import { i18n } from '$lib/i18n';
+import { db } from '$lib/server/db';
+import { user } from '$lib/server/db/schema';
+import { eq } from 'drizzle-orm';
 
 const handleParaglide: Handle = i18n.handle();
 
@@ -15,7 +18,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
         return resolve(event);
     }
 
-    const { session, user } = await auth.validateSession(sessionId);
+    const { session, user: authUser } = await auth.validateSession(sessionId);
 
     if (session) {
         event.cookies.set(auth.sessionCookieName, session.id, {
@@ -29,18 +32,25 @@ const handleAuth: Handle = async ({ event, resolve }) => {
         event.cookies.delete(auth.sessionCookieName, { path: '/' });
     }
 
-    // Assurez-vous que `locals.user` correspond au type défini dans `app.d.ts`
-    event.locals.user = user
-    ? {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        profile_picture: user.profile_picture,
-		oauthProvider: user.oauthProvider  // Nom aligné
+    // Si un utilisateur est authentifié, recharge ses informations depuis la base de données
+    if (authUser) {
+        const userRecord = await db.select().from(user).where(eq(user.id, authUser.id)).execute();
+        
+        // Met à jour event.locals.user avec les données actualisées
+        event.locals.user = userRecord && userRecord[0] ? {
+            id: userRecord[0].id,
+            name: userRecord[0].name,
+            email: userRecord[0].email,
+            profile_picture: userRecord[0].profilePicture,
+            oauthProvider: userRecord[0].oauthProvider
+        } : null;
+    } else {
+        event.locals.user = null;
     }
-    : null;
+
     event.locals.session = session;
     return resolve(event);
 };
 
+// Utilise sequence pour enchaîner handleParaglide et handleAuth
 export const handle: Handle = sequence(handleParaglide, handleAuth);

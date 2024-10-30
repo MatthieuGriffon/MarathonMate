@@ -59,7 +59,7 @@
         deleteMessage = 'Une erreur est survenue. Veuillez réessayer.';
     }
 }
-async function handleFileUpload() {
+    async function handleFileUpload() {
     if (!profilePicture) {
         uploadMessage = 'Please select a file.';
         return;
@@ -109,12 +109,14 @@ async function handleFileUpload() {
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
          
-        <form on:submit|preventDefault={handleFileUpload}>
-            <label for="profilePicture">Upload Profile Picture:</label>
-            <input type="file" id="profilePicture" accept="image/jpeg, image/png" on:change={(e) => { const target = e.target as HTMLInputElement; if (target.files) profilePicture = target.files[0]; }} />
-            <button type="submit">Upload</button>
-        </form>
-        <p>{uploadMessage}</p>
+        <div class="photo-upload-card">
+            <form on:submit|preventDefault={handleFileUpload}>
+                <label for="profilePicture">Changer votre photo de profil :</label>
+                <input type="file" id="profilePicture" accept="image/jpeg, image/png" on:change={(e) => { const target = e.target as HTMLInputElement; if (target.files) profilePicture = target.files[0]; }} />
+                <button type="submit">Upload</button>
+            </form>
+            <p>{uploadMessage}</p>
+        </div>
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <p class="change-password-link" on:click={() => showPasswordChange = !showPasswordChange}>
@@ -166,7 +168,6 @@ async function handleFileUpload() {
 
 
 <style>
-    /* Styles de base du profil */
     .profile {
     max-width: 400px;
     margin: 1rem auto;
@@ -179,7 +180,6 @@ async function handleFileUpload() {
     flex-direction: column;
     align-items: center;
 }
-
 .profile-picture {
     border-radius: 50%;
     width: 100px;
@@ -203,14 +203,11 @@ async function handleFileUpload() {
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
     font-size: 0.9rem;
 }
-
-/* Ajustement du texte et des champs du changement de mot de passe */
 .password-change-card label {
     font-weight: bold;
     margin-top: 0.5rem;
     font-size: 0.9rem;
 }
-
 .password-change-card input[type="password"] {
     width: 100%;
     padding: 0.4rem;
@@ -218,14 +215,12 @@ async function handleFileUpload() {
     border-radius: 4px;
     font-size: 0.9rem;
 }
-
 .password-change-card button {
     margin-top: 1rem;
     padding: 0.4rem 1rem;
     font-size: 0.9rem;
     background-color: #333;
 }
-
     .profile-info {
         display: flex;
         flex-direction: column;
@@ -236,7 +231,6 @@ async function handleFileUpload() {
     margin-top: 0.5rem;
     color: green;
 }
-
 button {
     margin-top: 1.5rem;
     padding: 0.5rem 1rem;
@@ -248,7 +242,6 @@ button {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-
 button:hover {
     background-color: #555;
 }
@@ -263,5 +256,43 @@ button:hover {
 }
 .change-password-link:hover {
     background-color: #555;
+}
+.photo-upload-card {
+    max-width: 100%;
+    background-color: #70696993;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem;
+    text-align: center;
+}
+.photo-upload-card label {
+    font-weight: bold;
+    margin-bottom: 1rem;
+    display: block;
+}
+.photo-upload-card input[type="file"] {
+    margin: 1rem 0;
+}
+.photo-upload-card button {
+    margin-top: 1rem;
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+    background-color: #333;
+    color: rgba(255, 255, 255, 0.993);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.photo-upload-card button:hover {
+    background-color: #555;
+}
+.photo-upload-card p {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: green;
 }
 </style>

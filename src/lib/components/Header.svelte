@@ -34,7 +34,8 @@
             <li><a class="menu__item" href="/" on:click={() => (menuOpen = false)}>Accueil</a></li>
             <li><button class="menu__item" on:click={() => { closeMenu(); openModalConnexion(); }}>Connexion</button></li>
             <li><button class="menu__item" on:click={() => { closeMenu(); openModalInscription(); }}>Inscription</button></li>
-            <li><a class="menu__item" href="/marathons" on:click={() => (menuOpen = false)}>Marathons</a></li>
+            <li><a class="menu__item" href="/create_marathon" on:click={() => (menuOpen = false)}>Creer un Marathon</a></li>
+            <li><a class="menu__item" href="/list_marathon" on:click={() => (menuOpen = false)}>Liste de vos Marathons</a></li>
             <li><a class="menu__item" href="/suggestions" on:click={() => (menuOpen = false)}>Suggestions</a></li>
             {#if user}
                 <li><a class="menu__item" href="/profile" on:click={() => (menuOpen = false)}>Profil</a>

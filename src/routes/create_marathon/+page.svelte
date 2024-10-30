@@ -1,12 +1,12 @@
 <script lang="ts">
-    import { page } from '$app/stores';
+    import { invalidateAll } from '$app/navigation';
     let marathonName = '';
     let marathonDate = '';
     let searchQuery = '';
     let searchResults: { title: string }[] = [];
     let selectedFilms: { title: string }[] = [];
+    let confirmationMessage = ''; // Nouveau message de confirmation
 
-    // Fonction pour créer un marathon
     async function handleCreateMarathon(event: Event) {
         event.preventDefault();
 
@@ -15,20 +15,25 @@
             return;
         }
 
-        // Appel backend pour créer le marathon
-        await fetch('/marathons/create', {
+        const response = await fetch('/marathons/create', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: marathonName, date: marathonDate, films: selectedFilms })
         });
 
-        // Réinitialisation du formulaire
+        if (response.ok) {
+            confirmationMessage = 'Marathon créé avec succès !'; // Affiche le message
+            setTimeout(async () => {
+                await invalidateAll(); // Rafraîchit les données de la page
+                confirmationMessage = ''; // Réinitialise le message
+            }, 3000); // Délais de 3 secondes
+        }
+
         marathonName = '';
         marathonDate = '';
         selectedFilms = [];
     }
 
-    // Fonction pour rechercher des films
     async function handleSearchFilms() {
         if (!searchQuery) return;
 
@@ -40,20 +45,16 @@
         }
     }
 
-    // Fonction pour ajouter un film sans doublons
     function addFilmToMarathon(film: { title: string }) {
         if (!selectedFilms.some(selected => selected.title === film.title)) {
             selectedFilms = [...selectedFilms, film];
         }
     }
 
-    // Fonction pour retirer un film de la sélection
     function removeFilmFromMarathon(film: { title: string }) {
         selectedFilms = selectedFilms.filter(selected => selected.title !== film.title);
     }
 </script>
-
-
 
 <div class="marathon-form">
     <label for="name">Nom du Marathon :</label>
@@ -87,73 +88,76 @@
     </ul>
 </div>
 
+{#if confirmationMessage}
+    <p class="confirmation-message">{confirmationMessage}</p>
+{/if}
+
 <button class="create-marathon-button" on:click={handleCreateMarathon}>Créer Marathon</button>
 
 <style>
-.marathon-form, .search-results, .selected-films {
-    margin: 1.5rem 1.5rem; /* Espacement autour des cartes */
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
+    .confirmation-message {
+        color: green;
+        text-align: center;
+        margin-top: 1rem;
+        font-weight: bold;
+    }
 
-/* Limite la hauteur de la carte de résultats de recherche et active le défilement */
-.search-results ul, .selected-films ul {
-    max-height: 200px;
-    overflow-y: auto;
-    list-style-type: none;
-    padding: 0;
-}
+    .marathon-form, .search-results, .selected-films {
+        margin: 1.5rem 1.5rem;
+        padding: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
 
-/* Styles pour les éléments dans les listes */
-.search-results li, .selected-films li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
+    .search-results ul, .selected-films ul {
+        max-height: 200px;
+        overflow-y: auto;
+        list-style-type: none;
+        padding: 0;
+    }
 
-/* Boutons d'ajout et de retrait */
-button.add, button.remove {
-    font-size: 0.8rem;
-    padding: 0.2rem 0.5rem;
-    cursor: pointer;
-    border: none;
-    border-radius: 4px;
-}
+    .search-results li, .selected-films li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
 
-button.add {
-    background-color: #4caf50;
-    color: white;
-}
+    button.add, button.remove {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+        cursor: pointer;
+        border: none;
+        border-radius: 4px;
+    }
 
-button.remove {
-    background-color: #e74c3c;
-    color: white;
-}
+    button.add {
+        background-color: #4caf50;
+        color: white;
+    }
 
-button.add:hover, button.remove:hover {
-    opacity: 0.9;
-}
+    button.remove {
+        background-color: #e74c3c;
+        color: white;
+    }
 
-/* Bouton Créer Marathon */
-.create-marathon-button {
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    margin: 2rem auto; /* Centre le bouton et ajoute de l’espace en haut */
-    padding: 0.8rem;
-    font-size: 1rem;
-    background-color: #7f8183;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
+    .create-marathon-button {
+        display: block;
+        width: 100%;
+        max-width: 300px;
+        margin: 2rem auto;
+        padding: 0.8rem;
+        font-size: 1rem;
+        background-color: #7f8183;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
 
-.create-marathon-button:hover {
-    background-color: #313131;
-}
+    .create-marathon-button:hover {
+        background-color: #313131;
+    }
 </style>

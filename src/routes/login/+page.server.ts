@@ -36,7 +36,7 @@ export const actions: Actions = {
             path: '/',
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            maxAge: 30 * 24 * 60 * 60 // Expire après 30 jours
+            maxAge: 30 * 24 * 60 * 60 
         });
 
         // 6. Redirection après une connexion réussie

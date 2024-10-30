@@ -21,6 +21,26 @@ declare global {
         overview: string;
         poster_path: string | null;
     };
+	type InvitedUser = {
+        id: string;
+        name: string;
+        status: string;
+    };
+    type Film = {
+        id: string;
+        title: string;
+        releaseDate: string;
+        posterUrl: string;
+    };
+    type Marathon = {
+        id: string;
+        name: string;
+        date: string;
+        status: string;
+        films: Film[];
+        isOpen: boolean;
+        invitedUsers: InvitedUser[]; // Type explicite pour les utilisateurs invités
+    };
 }
 
 export {};

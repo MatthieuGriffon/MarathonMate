@@ -14,7 +14,8 @@ export const GET = async ({ locals }) => {
             name: marathon.name,
             date: marathon.date,
             status: marathon.status,
-            organizerId: marathon.organizerId
+            organizerId: marathon.organizerId,
+            invitationCode: marathon.invitationCode,
         })
         .from(marathon)
         .where(eq(marathon.organizerId, locals.user.id)); 

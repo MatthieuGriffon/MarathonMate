@@ -5,6 +5,11 @@ import { marathon, movie as movieTable, marathonMovies } from '$lib/server/db/sc
 import { v4 as uuidv4 } from 'uuid';
 import { eq } from 'drizzle-orm';
 
+// Fonction pour générer un code d'invitation unique
+function generateInvitationCode() {
+    return Math.random().toString(36).substr(2, 8).toUpperCase();
+}
+
 export const POST = async ({ request, locals }: RequestEvent) => {
     const { name, date, films } = await request.json();
 
@@ -26,15 +31,18 @@ export const POST = async ({ request, locals }: RequestEvent) => {
             return json({ error: 'Format de date invalide' }, { status: 400 });
         }
 
-        // Création du marathon
+        // Création du marathon avec un code d'invitation unique
         const marathonId = uuidv4();
+        const invitationCode = generateInvitationCode();
+
         await db.insert(marathon).values({
             id: marathonId,
             organizerId: locals.user.id,
             name,
             date: marathonDate,
             status: 'À venir',
-            createdAt: new Date()
+            createdAt: new Date(),
+            invitationCode // Nouveau champ d'invitation
         });
 
         // Ajout des films au marathon
@@ -49,7 +57,6 @@ export const POST = async ({ request, locals }: RequestEvent) => {
             if (existingMovie.length > 0) {
                 movieId = existingMovie[0].id;
             } else {
-                // Assurez-vous que les noms de propriétés sont corrects
                 movieId = uuidv4();
                 await db.insert(movieTable).values({
                     id: movieId,
@@ -67,7 +74,7 @@ export const POST = async ({ request, locals }: RequestEvent) => {
             });
         }
 
-        return json({ message: 'Marathon créé avec succès', marathonId });
+        return json({ message: 'Marathon créé avec succès', marathonId, invitationCode });
     } catch (error) {
         console.error('Erreur lors de la création du marathon:', error);
         return json({ error: 'Erreur serveur lors de la création du marathon' }, { status: 500 });

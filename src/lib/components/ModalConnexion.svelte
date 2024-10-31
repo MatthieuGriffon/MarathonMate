@@ -160,5 +160,3 @@
         background-color: #555;
     }
 </style>
-
-

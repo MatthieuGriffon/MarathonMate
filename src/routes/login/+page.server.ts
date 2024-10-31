@@ -40,6 +40,6 @@ export const actions: Actions = {
         });
 
         // 6. Redirection après une connexion réussie
-        throw redirect(303, '/profile');
+        throw redirect(303, '/list_marathon');
     }
 };

@@ -52,8 +52,11 @@ export const marathon = pgTable('marathon', {
     date: timestamp('date').notNull(),
     name: text('name').notNull(),
     status: text('status').notNull(),
-    createdAt: timestamp('created_at').defaultNow()
-});
+    createdAt: timestamp('created_at').defaultNow(),
+    invitationCode: text('invitation_code') // Ajout du champ invitationCode
+}, (table) => ({
+    uniqueInvitationCode: unique().on(table.invitationCode) 
+}));
 
 // Table Marathon_Movies (junction table)
 export const marathonMovies = pgTable('marathon_movies', {

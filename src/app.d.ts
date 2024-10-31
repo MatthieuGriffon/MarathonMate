@@ -39,7 +39,8 @@ declare global {
         status: string;
         films: Film[];
         isOpen: boolean;
-        invitedUsers: InvitedUser[]; // Type explicite pour les utilisateurs invités
+        invitedUsers: InvitedUser[];
+        invitationCode: string; // Add this line // Type explicite pour les utilisateurs invités
     };
 }
 

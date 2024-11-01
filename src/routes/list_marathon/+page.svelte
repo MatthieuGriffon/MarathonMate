@@ -1,15 +1,14 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import JoinMarathonModal from '$lib/components/JoinMarathonModal.svelte';
-    import { goto } from '$app/navigation';
-
+    import type { PageData } from './$types';
     let marathons: Marathon[] = [];
     let showModal = false;
     let marathonToDelete: string | null = null;
     let userToDelete: { marathonId: string; userId: string } | null = null;
     let showJoinModal = false;
-
-    // Charger les marathons au montage du composant
+    export let data: PageData;
+    let { user} = data;
     onMount(loadMarathons);
 
     // Fonction pour charger les marathons depuis le backend
@@ -25,7 +24,6 @@
             console.error('Erreur réseau:', error);
         }
     }
-
     // Afficher ou masquer les films et les utilisateurs invités d'un marathon
     async function toggleMarathon(marathonId: string) {
         marathons = await Promise.all(
@@ -40,35 +38,27 @@
             })
         );
     }
-
     async function loadMarathonMovies(marathonId: string) {
         const response = await fetch(`/marathons/${marathonId}/films`);
         return response.ok ? await response.json() : [];
     }
-
     async function loadInvitedUsers(marathonId: string) {
         const response = await fetch(`/marathons/${marathonId}/invited-users`);
         return response.ok ? await response.json() : [];
     }
-
     async function handleJoinSuccess(event: CustomEvent<{ marathonId: string }>) {
     const { marathonId } = event.detail;
     await loadMarathons(); // Recharge la liste des marathons
     showJoinModal = false; // Ferme la modal une fois le marathon rejoint
 }
-
-    // Copie le code d'invitation dans le presse-papiers
     function copyInvitationCode(code: string) {
         navigator.clipboard.writeText(code)
             .then(() => alert('Code d\'invitation copié !'))
             .catch((error) => console.error('Erreur lors de la copie du code :', error));
     }
-
-    // Gestionnaires pour ouvrir et fermer les modals
     function openJoinModal() { showJoinModal = true; }
     function openDeleteModal(marathonId: string) { marathonToDelete = marathonId; showModal = true; }
     function cancelDelete() { marathonToDelete = null; showModal = false; }
-
     async function confirmDeleteMarathon() {
         if (marathonToDelete) {
             const response = await fetch(`/marathons/${marathonToDelete}/delete`, { method: 'DELETE' });
@@ -81,12 +71,10 @@
             }
         }
     }
-
     function openUserDeleteModal(marathonId: string, userId: string) {
         userToDelete = { marathonId, userId };
         showModal = true;
     }
-
     async function confirmDeleteUser() {
         if (userToDelete) {
             const { marathonId, userId } = userToDelete;
@@ -138,7 +126,7 @@
     {#each marathons as marathon}
         <div class="marathon-card">
             <div class="marathon-header">
-                <h3>{marathon.name}</h3>
+                <h3>{marathon.name} <span class="organizer"> - Organisé par {marathon.organizerName}</span></h3>               
                 <button on:click={() => toggleMarathon(marathon.id)}>
                     {marathon.isOpen ? 'Masquer les films' : 'Voir les films'}
                 </button>
@@ -180,11 +168,10 @@
                     </ul>
                 </div>
             {/if}
-            <div class="button-group">
-                <button class="delete" on:click={() => openDeleteModal(marathon.id)}>
-                    Supprimer le marathon
-                </button>
-            </div>
+             <!-- Bouton visible uniquement pour l'organisateur -->
+             {#if marathon.organizerId === user?.id}
+             <button class="delete" on:click={() => openDeleteModal(marathon.id)}>Supprimer le marathon</button>
+         {/if}
         </div>
     {/each}
 </div>
@@ -295,12 +282,6 @@
     .film-info {
         display: flex;
         flex-direction: column;
-    }
-
-    .button-group {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
     }
 
     button {

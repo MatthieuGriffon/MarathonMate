@@ -40,7 +40,9 @@ declare global {
         films: Film[];
         isOpen: boolean;
         invitedUsers: InvitedUser[];
-        invitationCode: string; // Add this line // Type explicite pour les utilisateurs invités
+        invitationCode: string;
+        organizerId: string;
+        organizerName:string; // Add this line // Type explicite pour les utilisateurs invités
     };
 }
 

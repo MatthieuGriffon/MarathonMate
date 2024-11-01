@@ -10,6 +10,7 @@
     let showJoinModal = false;
     let showAddFilmModal = false;
     let selectedMarathonId: string | null = null;
+    let showNotification = false; //
 
     export let data: PageData;
     let { user} = data;
@@ -79,9 +80,14 @@
     await loadMarathons(); // Recharge la liste des marathons
     showJoinModal = false; // Ferme la modal une fois le marathon rejoint
 }
-    function copyInvitationCode(code: string) {
+function copyInvitationCode(code: string) {
         navigator.clipboard.writeText(code)
-            .then(() => alert('Code d\'invitation copié !'))
+            .then(() => {
+                showNotification = true;
+                setTimeout(() => {
+                    showNotification = false;
+                }, 3000); // Notification disparaît après 3 secondes
+            })
             .catch((error) => console.error('Erreur lors de la copie du code :', error));
     }
     function openJoinModal() { showJoinModal = true; }
@@ -240,26 +246,47 @@
 {#if showAddFilmModal}
     <AddFilmModal on:close={() => showAddFilmModal = false} on:addfilms={handleAddFilms} />
 {/if}
+{#if showNotification}
+    <div class="notification">
+        Code d'invitation copié !
+    </div>
+{/if}
 <style>
-.invitation-code {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1rem;
-}
 
-.invitation-code button {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.9rem;
-    border: none;
-    background-color: #4285f4;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.invitation-code button:hover {
-    background-color: #357ae8;
-}
+.invitation-code {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .invitation-code button {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.9rem;
+        border: none;
+        background-color: #4285f4;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .notification {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #4caf50;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        animation: fade-in-out 3s;
+        z-index: 1000;
+    }
+    @keyframes fade-in-out {
+        0% { opacity: 0; transform: translate(-50%, -60%); }
+        10% { opacity: 1; transform: translate(-50%, -50%); }
+        90% { opacity: 1; transform: translate(-50%, -50%); }
+        100% { opacity: 0; transform: translate(-50%, -60%); }
+    }
 .marathons-list {
         max-width: 600px;
         margin: 2rem auto;

@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { marathon, marathonMovies } from '$lib/server/db/schema';
+import { marathon, marathonMovies, marathonParticipants } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export const DELETE = async ({ params, locals }) => {
@@ -22,6 +22,8 @@ export const DELETE = async ({ params, locals }) => {
     }
 
     try {
+         // Supprimer d'abord les participants associés au marathon
+         await db.delete(marathonParticipants).where(eq(marathonParticipants.marathonId, marathonId));
         // Suppression des films associés au marathon dans `marathon_movies`
         await db
             .delete(marathonMovies)

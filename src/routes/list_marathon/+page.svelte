@@ -1,97 +1,74 @@
 <script lang="ts">
     import { onMount } from 'svelte';
     import JoinMarathonModal from '$lib/components/JoinMarathonModal.svelte';
+    import { goto } from '$app/navigation';
+
     let marathons: Marathon[] = [];
     let showModal = false;
     let marathonToDelete: string | null = null;
     let userToDelete: { marathonId: string; userId: string } | null = null;
-    let showJoinModal = false; 
+    let showJoinModal = false;
 
-    onMount(async () => {
-        const response = await fetch('/marathons', { method: 'GET' });
-        if (response.ok) {
-            marathons = await response.json();
-        } else {
-            console.error('Erreur lors du chargement des marathons');
-        }
-    });
-    async function addMoviesToMarathon(marathonId: string, movies: { id: string; title: string; releaseDate: string; posterUrl: string }[]) {
-        const response = await fetch(`/marathons/${marathonId}/films/add`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ films: movies })
-        });
-        if (!response.ok) {
-            console.error("Erreur lors de l'ajout des films au marathon");
+    // Charger les marathons au montage du composant
+    onMount(loadMarathons);
+
+    // Fonction pour charger les marathons depuis le backend
+    async function loadMarathons() {
+        try {
+            const response = await fetch('/marathons');
+            if (response.ok) {
+                marathons = await response.json();
+            } else {
+                console.error('Erreur lors du chargement des marathons');
+            }
+        } catch (error) {
+            console.error('Erreur réseau:', error);
         }
     }
-    async function removeMovieFromMarathon(marathonId: string, movieId: string) {
-        const response = await fetch(`/marathons/${marathonId}/films/${movieId}/delete`, { method: 'DELETE' });
-        
-        if (response.ok) {
-            // Mettre à jour la liste des films dans le frontend
-            marathons = marathons.map(marathon => {
-                if (marathon.id === marathonId) {
-                    return {
-                        ...marathon,
-                        films: marathon.films.filter(film => film.id !== movieId)
-                    };
-                }
-                return marathon;
-            });
-        } else {
-            console.error("Erreur lors de la suppression du film");
-        }
-    }
+
+    // Afficher ou masquer les films et les utilisateurs invités d'un marathon
     async function toggleMarathon(marathonId: string) {
         marathons = await Promise.all(
             marathons.map(async (marathon) => {
                 if (marathon.id === marathonId) {
                     const isOpen = !marathon.isOpen;
-                    
-                    const films = isOpen && (!marathon.films || marathon.films.length === 0)
-                        ? await loadMarathonMovies(marathonId)
-                        : marathon.films || [];
-                        
-                    const invitedUsers = isOpen && (!marathon.invitedUsers || marathon.invitedUsers.length === 0)
-                        ? await loadInvitedUsers(marathonId)
-                        : marathon.invitedUsers || [];
-
-                    return {
-                        ...marathon,
-                        isOpen,
-                        films,
-                        invitedUsers,
-                    };
+                    const films = isOpen ? await loadMarathonMovies(marathonId) : marathon.films || [];
+                    const invitedUsers = isOpen ? await loadInvitedUsers(marathonId) : marathon.invitedUsers || [];
+                    return { ...marathon, isOpen, films, invitedUsers };
                 }
                 return marathon;
             })
         );
     }
+
     async function loadMarathonMovies(marathonId: string) {
-        const response = await fetch(`/marathons/${marathonId}/films`, { method: 'GET' });
-        if (response.ok) {
-            const movies = await response.json();
-            return movies;
-        } else {
-            console.error("Erreur lors du chargement des films");
-            return [];
-        }
+        const response = await fetch(`/marathons/${marathonId}/films`);
+        return response.ok ? await response.json() : [];
     }
+
     async function loadInvitedUsers(marathonId: string) {
-        const response = await fetch(`/marathons/${marathonId}/invited-users`, { method: 'GET' });
-        if (response.ok) {
-            const invitedUsers = await response.json();
-            return invitedUsers;
-        } else {
-            console.error("Erreur lors du chargement des utilisateurs invités");
-            return [];
-        }
+        const response = await fetch(`/marathons/${marathonId}/invited-users`);
+        return response.ok ? await response.json() : [];
     }
-    function openDeleteModal(marathonId: string) {
-        marathonToDelete = marathonId;
-        showModal = true;
+
+    async function handleJoinSuccess(event: CustomEvent<{ marathonId: string }>) {
+    const { marathonId } = event.detail;
+    await loadMarathons(); // Recharge la liste des marathons
+    showJoinModal = false; // Ferme la modal une fois le marathon rejoint
+}
+
+    // Copie le code d'invitation dans le presse-papiers
+    function copyInvitationCode(code: string) {
+        navigator.clipboard.writeText(code)
+            .then(() => alert('Code d\'invitation copié !'))
+            .catch((error) => console.error('Erreur lors de la copie du code :', error));
     }
+
+    // Gestionnaires pour ouvrir et fermer les modals
+    function openJoinModal() { showJoinModal = true; }
+    function openDeleteModal(marathonId: string) { marathonToDelete = marathonId; showModal = true; }
+    function cancelDelete() { marathonToDelete = null; showModal = false; }
+
     async function confirmDeleteMarathon() {
         if (marathonToDelete) {
             const response = await fetch(`/marathons/${marathonToDelete}/delete`, { method: 'DELETE' });
@@ -104,14 +81,12 @@
             }
         }
     }
-    function cancelDelete() {
-        marathonToDelete = null;
-        showModal = false;
-    }
+
     function openUserDeleteModal(marathonId: string, userId: string) {
         userToDelete = { marathonId, userId };
         showModal = true;
     }
+
     async function confirmDeleteUser() {
         if (userToDelete) {
             const { marathonId, userId } = userToDelete;
@@ -133,14 +108,24 @@
             }
         }
     }
-     function copyInvitationCode(code: string) {
-        navigator.clipboard.writeText(code)
-            .then(() => alert('Code d\'invitation copié !'))
-            .catch((error) => console.error('Erreur lors de la copie du code :', error));
+    async function removeMovieFromMarathon(marathonId: string, movieId: string) {
+    const response = await fetch(`/marathons/${marathonId}/films/${movieId}/delete`, { method: 'DELETE' });
+
+    if (response.ok) {
+        // Met à jour la liste des films dans le frontend après la suppression
+        marathons = marathons.map(marathon => {
+            if (marathon.id === marathonId) {
+                return {
+                    ...marathon,
+                    films: marathon.films.filter(film => film.id !== movieId)
+                };
+            }
+            return marathon;
+        });
+    } else {
+        console.error("Erreur lors de la suppression du film");
     }
-    function openJoinModal() {
-        showJoinModal = true;
-    }
+}
 </script>
 
 <div class="marathons-list">
@@ -207,6 +192,7 @@
 <JoinMarathonModal
     isOpen={showJoinModal}
     on:close={() => showJoinModal = false}
+    on:joinSuccess={handleJoinSuccess}
 />
 
 {#if showModal}

@@ -5,6 +5,8 @@
     const dispatch = createEventDispatcher();
     let invitationCode = '';
     let errorMessage = '';
+    
+
     async function handleJoinMarathon() {
         const response = await fetch('/marathons/validate-invitation', {
             method: 'POST',
@@ -14,8 +16,8 @@
 
         if (response.ok) {
             const { marathonId } = await response.json();
-            dispatch('close'); // Fermer la modal
-            await goto(`/marathons/${marathonId}`);
+            dispatch('joinSuccess', { marathonId });
+            dispatch('close'); 
         } else {
             errorMessage = 'Code d’invitation invalide ou expiré.';
         }

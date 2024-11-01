@@ -21,6 +21,7 @@ export const GET = async ({ url }) => {
         const data = await response.json();
         const movies = data.results.map((movie: TmdbMovie) => ({
             id: movie.id,
+            tmdbId: movie.id,
             title: movie.title, // Titre en français
             releaseDate: movie.release_date,
             overview: movie.overview,

@@ -1,6 +1,6 @@
 import { json, type RequestEvent } from '@sveltejs/kit';
 import { db } from '$lib/server/db';
-import { marathonMovies, marathon } from '$lib/server/db/schema';
+import { marathonMovies } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export const DELETE = async ({ params, locals }: RequestEvent) => {
@@ -11,17 +11,10 @@ export const DELETE = async ({ params, locals }: RequestEvent) => {
         return json({ error: 'Non authentifié' }, { status: 401 });
     }
 
-    // Vérifie que l'utilisateur est l'organisateur du marathon
-    const isOrganizer = await db
-        .select({ organizerId: marathon.organizerId })
-        .from(marathon)
-        .where(eq(marathon.id, marathonId as string))
-        .limit(1)
-        .then(([result]) => result?.organizerId === locals.user?.id);
-
-    if (!isOrganizer) {
-        return json({ error: "Seul l'organisateur peut supprimer un film du marathon" }, { status: 403 });
-    }
+if (!locals.user) {
+    return json({ error: 'Non authentifié' }, { status: 401 });
+}
+    
 
     // Suppression du film du marathon dans la table marathonMovies
     await db

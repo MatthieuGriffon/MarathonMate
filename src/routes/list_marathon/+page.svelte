@@ -1,30 +1,58 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
     import JoinMarathonModal from '$lib/components/JoinMarathonModal.svelte';
+    import AddFilmModal from '$lib/components/AddFilmModal.svelte';
+    import { onMount } from 'svelte';
     import type { PageData } from './$types';
     let marathons: Marathon[] = [];
     let showModal = false;
     let marathonToDelete: string | null = null;
     let userToDelete: { marathonId: string; userId: string } | null = null;
     let showJoinModal = false;
+    let showAddFilmModal = false;
+    let selectedMarathonId: string | null = null;
+
     export let data: PageData;
     let { user} = data;
     onMount(loadMarathons);
 
     // Fonction pour charger les marathons depuis le backend
     async function loadMarathons() {
-        try {
-            const response = await fetch('/marathons');
-            if (response.ok) {
-                marathons = await response.json();
-            } else {
-                console.error('Erreur lors du chargement des marathons');
-            }
-        } catch (error) {
-            console.error('Erreur réseau:', error);
+    try {
+        const response = await fetch('/marathons');
+        if (response.ok) {
+            const marathonsData = await response.json();
+
+            // Charger les films et les participants pour chaque marathon dès le chargement
+            marathons = await Promise.all(
+                marathonsData.map(async (marathon: Marathon) => {
+                    const invitedUsers = await loadInvitedUsers(marathon.id);
+                    return { ...marathon, invitedUsers };
+                })
+            );
+        } else {
+            console.error('Erreur lors du chargement des marathons');
         }
+    } catch (error) {
+        console.error('Erreur réseau:', error);
     }
-    // Afficher ou masquer les films et les utilisateurs invités d'un marathon
+}
+    function openAddFilmModal(marathonId: string) {
+        selectedMarathonId = marathonId;
+        showAddFilmModal = true;
+    }
+    async function handleAddFilms(event: CustomEvent<{ films: any[] }>) {
+        const { films } = event.detail;
+        const response = await fetch(`/marathons/${selectedMarathonId}/films/add`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ films })
+        });
+        if (response.ok) {
+            loadMarathons(); // recharge la liste avec les nouveaux films
+        }
+        showAddFilmModal = false;
+        selectedMarathonId = null;
+    }
     async function toggleMarathon(marathonId: string) {
         marathons = await Promise.all(
             marathons.map(async (marathon) => {
@@ -126,7 +154,21 @@
     {#each marathons as marathon}
         <div class="marathon-card">
             <div class="marathon-header">
-                <h3>{marathon.name} <span class="organizer"> - Organisé par {marathon.organizerName}</span></h3>               
+                <h3>{marathon.name} <span class="organizer"> - Organisé par {marathon.organizerName}</span></h3>
+                <div class="invited-users">
+                    <h4>Participants :</h4>
+                    <ul>
+                        {#each marathon.invitedUsers as user}
+                            <li>
+                                {user.name} - {user.status}
+                                <button on:click={() => openUserDeleteModal(marathon.id, user.id)} class="remove-user-button">
+                                    Supprimer
+                                </button>
+                            </li>
+                        {/each}
+                    </ul>
+                </div>
+                <button on:click={() => openAddFilmModal(marathon.id)}>Ajouter des Films</button>               
                 <button on:click={() => toggleMarathon(marathon.id)}>
                     {marathon.isOpen ? 'Masquer les films' : 'Voir les films'}
                 </button>
@@ -154,19 +196,7 @@
                         {/each}
                     </ul>
                 </div>
-                <div class="invited-users">
-                    <h4>Utilisateurs invités :</h4>
-                    <ul>
-                        {#each marathon.invitedUsers as user}
-                            <li>
-                                {user.name} - {user.status}
-                                <button on:click={() => openUserDeleteModal(marathon.id, user.id)} class="remove-user-button">
-                                    Supprimer
-                                </button>
-                            </li>
-                        {/each}
-                    </ul>
-                </div>
+               
             {/if}
              <!-- Bouton visible uniquement pour l'organisateur -->
              {#if marathon.organizerId === user?.id}
@@ -206,6 +236,9 @@
             </div>
         </div>
     </div>
+{/if}
+{#if showAddFilmModal}
+    <AddFilmModal on:close={() => showAddFilmModal = false} on:addfilms={handleAddFilms} />
 {/if}
 <style>
 .invitation-code {
